@@ -1,6 +1,8 @@
 import argparse
 import enum
-from service.create_logs import create_logs
+import logging
+
+from diag.dao.stats import StatsDAO
 
 class Mode(enum.Enum):
   deploy = 'deploy'
@@ -11,13 +13,15 @@ class Mode(enum.Enum):
 
 def main():
   parser = argparse.ArgumentParser()
-  parser.add_argument('mode', type=str, choices=['deploy', 'stats'])
+  subparser = parser.add_subparsers(title='mode', dest='mode')
+  stats_parser = subparser.add_parser(name='stats')
+  deploy_parser = subparser.add_parser(name='deploy')
+
   opts = parser.parse_args()
   mode = opts.mode
 
   if (mode == 'stats'):
-    print("Everything doing fine!")
-    create_logs()
+    logging.info("Everything doing fine!")
   elif mode == 'deploy':
     raise NotImplementedError()
   else:
