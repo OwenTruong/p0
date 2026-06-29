@@ -7,6 +7,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
+    {% macro mytable(header_names) %}
+    <div class="max-h-[500px] overflow-y-auto relative">
+      <table class="w-full">
+        <thead class="sticky top-0 z-10 bg-white">
+          <tr>
+            {% for h in header_names %}
+            <th>{{h}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {{ caller() }}
+        </tbody>
+      </table>
+    </div>
+    {% endmacro %}
+
     <header>
       <h1>Local Diagnosis Report</h1>
     </header>
@@ -57,134 +74,90 @@
         </div>
         <div id="storage">
           <h3>Storage</h3>
-          <div class="max-h-[500px] overflow-y-auto relative">
-            <table class="w-full">
-              <thead class="sticky top-0 z-10 bg-white">
-                <tr>
-                  <th>Filesystem</th>
-                  <th>Total Capacity (MB)</th>
-                  <th>Used (MB)</th>
-                  <th>Mount Path</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for storage in storages %}
-                <tr>
-                  <td>{{storage.filesystem}}</td>
-                  <td>{{storage.total_capacity}}</td>
-                  <td>{{storage.used_capacity}}</td>
-                  <td>{{storage.mount_path}}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+          <!-- prettier-ignore -->
+          {% call mytable(["Filesystem", "Total Capacity (MB)", "Used (MB)", "Mount Path"]) %}
+          <!-- prettier-ignore -->
+          {% for storage in storages %}
+          <tr>
+            <td>{{storage.filesystem}}</td>
+            <td>{{storage.total_capacity}}</td>
+            <td>{{storage.used_capacity}}</td>
+            <td>{{storage.mount_path}}</td>
+          </tr>
+          <!-- prettier-ignore -->
+          {% endfor %}
+          <!-- prettier-ignore -->
+          {% endcall %}
         </div>
       </section>
       <section id="network">
         <h2>Network</h2>
         <div id="local">
           <h3>Local UNIX Network</h3>
-          <div class="max-h-[500px] overflow-y-auto relative">
-            <table class="w-full">
-              <thead class="sticky top-0 z-10 bg-white">
-                <tr>
-                  <th>Protocol</th>
-                  <th>Type</th>
-                  <th>State</th>
-                  <th>Path</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for network in network.local %}
-                <tr>
-                  <td>{{network.proto}}</td>
-                  <td>{{network.type}}</td>
-                  <td>{{network.state}}</td>
-                  <td>{{network.path}}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+          <!-- prettier-ignore -->
+          {% call mytable(["Protocol", "State", "Type", "Path"]) %}
+          <!-- prettier-ignore -->
+          {% for network in network.local %}
+          <tr>
+            <td>{{network.proto}}</td>
+            <td>{{network.state}}</td>
+            <td>{{network.type}}</td>
+            <td>{{network.path}}</td>
+          </tr>
+          {% endfor %}
+          <!-- prettier-ignore -->
+          {% endcall %}
         </div>
         <div id="tcp">
           <h3>TCP Network</h3>
-          <div class="max-h-[500px] overflow-y-auto relative">
-            <table class="w-full">
-              <thead class="sticky top-0 z-10 bg-white">
-                <tr>
-                  <th>Protocol</th>
-                  <th>Local Address</th>
-                  <th>Foreign Address</th>
-                  <th>Path</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for network in network.tcp %}
-                <tr>
-                  <td>{{network.proto}}</td>
-                  <td>{{network.local_address}}</td>
-                  <td>{{network.foreign_address}}</td>
-                  <td>{{network.state}}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+          <!-- prettier-ignore -->
+          {% call mytable(["Protocol", "State", "Local Address", "Foreign Address"]) %}
+          <!-- prettier-ignore -->
+          {% for network in network.tcp %}
+          <tr>
+            <td>{{network.proto}}</td>
+            <td>{{network.state}}</td>
+            <td>{{network.local_address}}</td>
+            <td>{{network.foreign_address}}</td>
+          </tr>
+          {% endfor %}
+          <!-- prettier-ignore -->
+          {% endcall %}
         </div>
       </section>
       <section id="logs">
         <h2>Logs</h2>
         <div id="auth">
           <h3>Authentication</h3>
-          <div class="max-h-[500px] overflow-y-auto relative">
-            <table class="w-full">
-              <thead class="sticky top-0 z-10 bg-white">
-                <tr>
-                  <th>Date</th>
-                  <th>Hostname</th>
-                  <th>Service</th>
-                  <th>Message</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for log in auth_logs %}
-                <tr>
-                  <td>{{log.timestamp}}</td>
-                  <td>{{log.hostname}}</td>
-                  <td>{{log.service}}</td>
-                  <td>{{log.message}}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+          <!-- prettier-ignore -->
+          {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+          <!-- prettier-ignore -->
+          {% for log in auth_logs %}
+          <tr>
+            <td>{{log.timestamp}}</td>
+            <td>{{log.hostname}}</td>
+            <td>{{log.service}}</td>
+            <td>{{log.message}}</td>
+          </tr>
+          {% endfor %}
+          <!-- prettier-ignore -->
+          {% endcall %}
         </div>
         <div id="jctl">
           <h3>JournalCtl</h3>
-          <div class="max-h-[500px] overflow-y-auto relative">
-            <table class="w-full">
-              <thead class="sticky top-0 z-10 bg-white">
-                <tr>
-                  <th>Date</th>
-                  <th>Hostname</th>
-                  <th>Service</th>
-                  <th>Message</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for log in jctl_logs %}
-                <tr>
-                  <td>{{log.timestamp}}</td>
-                  <td>{{log.hostname}}</td>
-                  <td>{{log.service}}</td>
-                  <td>{{log.message}}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+          <!-- prettier-ignore -->
+          {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+          <!-- prettier-ignore -->
+          {% for log in auth_logs %}
+          <tr>
+            <td>{{log.timestamp}}</td>
+            <td>{{log.hostname}}</td>
+            <td>{{log.service}}</td>
+            <td>{{log.message}}</td>
+          </tr>
+          {% endfor %}
+          <!-- prettier-ignore -->
+          {% endcall %}
         </div>
       </section>
     </main>
