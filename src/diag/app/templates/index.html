@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local Diagnosis Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Local Diagnosis Report</h1>
+    </header>
+    <main>
+      <section id="hardware">
+        <h2>Hardware</h2>
+        <div id="cpu">
+          <h3>CPU</h3>
+          <div>
+            <div id="cpu_load">
+              <p>CPU Load</p>
+              <p>{{cpu.current}}%</p>
+            </div>
+            <div id="cpu_load_minute_avg">
+              <p>1 Minute Average</p>
+              <p>{{cpu.one_minute}}%</p>
+            </div>
+            <div id="cpu_load_five_minute_avg">
+              <p>5 Minute Average</p>
+              <p>{{cpu.five_minute}}%</p>
+            </div>
+            <div id="cpu_load_fifteen_minute_avg">
+              <p>15 Minute Average</p>
+              <p>{{cpu.fifteen_minute}}%</p>
+            </div>
+          </div>
+        </div>
+        <div id="memory">
+          <h3>Memory</h3>
+          <div>
+            <div id="memory_used_total">
+              <p>Memory</p>
+              <p>
+                <span>{{memory.memory_used}}GB</span>
+                <span>/</span>
+                <span>{{memory.memory_total}}GB</span>
+              </p>
+            </div>
+            <div id="memory_swap_used_total">
+              <p>Memory Swap</p>
+              <p>
+                <span>{{memory.memory_swap_used}}GB</span>
+                <span>/</span>
+                <span>{{memory.memory_swap_total}}GB</span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <div id="storage">
+          <h3>Storage</h3>
+          <div class="max-h-[500px] overflow-y-auto relative">
+            <table class="w-full">
+              <thead class="sticky top-0 z-10 bg-white">
+                <tr>
+                  <th>Filesystem</th>
+                  <th>Total Capacity (MB)</th>
+                  <th>Used (MB)</th>
+                  <th>Mount Path</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for storage in storages %}
+                <tr>
+                  <td>{{storage.filesystem}}</td>
+                  <td>{{storage.total_capacity}}</td>
+                  <td>{{storage.used_capacity}}</td>
+                  <td>{{storage.mount_path}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section id="network">
+        <h2>Network</h2>
+        <div id="local">
+          <h3>Local UNIX Network</h3>
+          <div class="max-h-[500px] overflow-y-auto relative">
+            <table class="w-full">
+              <thead class="sticky top-0 z-10 bg-white">
+                <tr>
+                  <th>Protocol</th>
+                  <th>Type</th>
+                  <th>State</th>
+                  <th>Path</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for network in network.local %}
+                <tr>
+                  <td>{{network.proto}}</td>
+                  <td>{{network.type}}</td>
+                  <td>{{network.state}}</td>
+                  <td>{{network.path}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="tcp">
+          <h3>TCP Network</h3>
+          <div class="max-h-[500px] overflow-y-auto relative">
+            <table class="w-full">
+              <thead class="sticky top-0 z-10 bg-white">
+                <tr>
+                  <th>Protocol</th>
+                  <th>Local Address</th>
+                  <th>Foreign Address</th>
+                  <th>Path</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for network in network.tcp %}
+                <tr>
+                  <td>{{network.proto}}</td>
+                  <td>{{network.local_address}}</td>
+                  <td>{{network.foreign_address}}</td>
+                  <td>{{network.state}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section id="logs">
+        <h2>Logs</h2>
+        <div id="auth">
+          <h3>Authentication</h3>
+          <div class="max-h-[500px] overflow-y-auto relative">
+            <table class="w-full">
+              <thead class="sticky top-0 z-10 bg-white">
+                <tr>
+                  <th>Date</th>
+                  <th>Hostname</th>
+                  <th>Service</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in auth_logs %}
+                <tr>
+                  <td>{{log.timestamp}}</td>
+                  <td>{{log.hostname}}</td>
+                  <td>{{log.service}}</td>
+                  <td>{{log.message}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="jctl">
+          <h3>JournalCtl</h3>
+          <div class="max-h-[500px] overflow-y-auto relative">
+            <table class="w-full">
+              <thead class="sticky top-0 z-10 bg-white">
+                <tr>
+                  <th>Date</th>
+                  <th>Hostname</th>
+                  <th>Service</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in jctl_logs %}
+                <tr>
+                  <td>{{log.timestamp}}</td>
+                  <td>{{log.hostname}}</td>
+                  <td>{{log.service}}</td>
+                  <td>{{log.message}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>By Owen Truong</p>
+      <p>MIT License</p>
+    </footer>
+  </body>
+</html>

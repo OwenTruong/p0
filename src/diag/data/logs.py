@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import List
 
 @dataclass
 class Auth:
@@ -19,5 +20,5 @@ class JournalCtl:
 
 @dataclass
 class Logs:
-  auth: Auth
-  journal_ctl: JournalCtl
+  auth_li: List[Auth]
+  journal_ctl_li: List[JournalCtl]
