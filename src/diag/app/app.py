@@ -17,16 +17,17 @@ from diag.dao.linux.logs import LogsDAO
 from diag.dao.linux.systems import SystemsDAO
 import diag.utils
 
+BASE_DIR = Path(__file__).resolve().parent
 
 app = FastAPI(title="Dashboard")
 # security = HTTPBearer()
 # FIXME: change wildcard to accept origin from env
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
-app.mount("/static", StaticFiles(directory="src/diag/app/static"), name="static")
+app.mount("/static", StaticFiles(directory=(BASE_DIR / "static")), name="static")
 
 APP_DIR = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory=str(APP_DIR / "templates"))
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 @app.middleware("http")
 async def log_request_execution_latency(request: Request, call_next):
