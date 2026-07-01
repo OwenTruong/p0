@@ -9,10 +9,12 @@ from pydantic import BaseModel, Field
 import time
 import logging
 from pathlib import Path
+from fastapi.staticfiles import StaticFiles
 
 # First Party
-from diag.dao.logs import LogsDAO
-from diag.dao.systems import SystemsDAO
+from diag.dao.db.metrics import MetricsDAO
+from diag.dao.linux.logs import LogsDAO
+from diag.dao.linux.systems import SystemsDAO
 import diag.utils
 
 
@@ -20,6 +22,8 @@ app = FastAPI(title="Dashboard")
 # security = HTTPBearer()
 # FIXME: change wildcard to accept origin from env
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
+app.mount("/static", StaticFiles(directory="src/diag/app/static"), name="static")
 
 APP_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(APP_DIR / "templates"))
@@ -54,11 +58,14 @@ async def serve(request: Request):
   STORAGE_FACTOR = 1024
   systems_dao = SystemsDAO()
   logs_dao = LogsDAO()
+  metrics_dao = MetricsDAO()
   systems = systems_dao.get_systems()
   logs = logs_dao.get_logs()
+  metrics = metrics_dao.read_all()
 
   storages_display = []
   network_locals_display = []
+  metrics_display = []
 
   # systems.network_local_li[0].state.value
 
@@ -78,12 +85,22 @@ async def serve(request: Request):
       "path": net.path
     })
 
+  for metric in metrics:
+    metrics_display.append({
+      "cpu_logical_core_count": metric.cpu_logical_core_count,
+      "cpu_average": round(metric.cpu_average / metric.cpu_logical_core_count * CPU_FACTOR, 1),
+      "memory_total": round(metric.memory_total / MEMORY_FACTOR, 2),
+      "memory_used": round(metric.memory_used / MEMORY_FACTOR, 2),
+      "created_on": metric.created_on
+    })
 
   return templates.TemplateResponse(
     name="index.html",
     context={
       "request": request,
+      "metrics": metrics_display,
       "cpu": {
+        "logical_cores": systems.cpu.logical_cores,
         "current": round(systems.cpu.current * CPU_FACTOR, 1),
         "one_minute": round(systems.cpu.one_minute * CPU_FACTOR, 1),
         "five_minute": round(systems.cpu.five_minute * CPU_FACTOR, 1),
@@ -92,8 +109,6 @@ async def serve(request: Request):
       "memory": {
         "memory_total": round(systems.memory.memory_total / MEMORY_FACTOR, 2),
         "memory_used": round(systems.memory.memory_used / MEMORY_FACTOR, 2),
-        "memory_swap_total": round(systems.memory.memory_swap_total / MEMORY_FACTOR, 2),
-        "memory_swap_used": round(systems.memory.memory_swap_used / MEMORY_FACTOR, 2)
       },
       "storages": storages_display,
       "network": {

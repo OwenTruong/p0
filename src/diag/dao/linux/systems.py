@@ -17,7 +17,16 @@ class SystemsDAO:
       
       minutes = list(map(lambda x: float(x.split()[-1].decode()), blist[0].split(b', ')[-3:]))
       current = (100 - float(blist[2].split()[7].decode())) / 100
-      return CPU(current=current, one_minute=minutes[0], five_minute=minutes[1], fifteen_minute=minutes[2])
+      logical_cores = os.cpu_count()
+      if logical_cores is None:
+        raise UnexpectedException("Unable to fetch total logical CPU cores from OS")
+      return CPU(
+        logical_cores=logical_cores,
+        current=current, 
+        one_minute=minutes[0], 
+        five_minute=minutes[1], 
+        fifteen_minute=minutes[2]
+      )
     except Exception as exc:
       raise UnexpectedException(exc)
 
@@ -25,10 +34,10 @@ class SystemsDAO:
     try:
       free = subprocess.run(['free'], capture_output=True)
       blist = free.stdout.split(b'\n')[1:]
-      mems = list(map(lambda x: float(x.decode()), blist[0].split()[1:]))
-      swaps = list(map(lambda x: float(x.decode()), blist[1].split()[1:]))
+      mems = list(map(lambda x: int(x.decode()), blist[0].split()[1:]))
+      # swaps = list(map(lambda x: float(x.decode()), blist[1].split()[1:]))
 
-      return Memory(memory_total=mems[0], memory_used=mems[1], memory_free=mems[2], memory_swap_total=swaps[0], memory_swap_used=swaps[1])
+      return Memory(memory_total=mems[0], memory_used=mems[1], memory_free=mems[2])
     except Exception as exc:
       raise UnexpectedException(exc)
 

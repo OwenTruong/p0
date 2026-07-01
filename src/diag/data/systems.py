@@ -8,18 +8,18 @@ from enum import Enum
 
 @dataclass
 class CPU:
-  current: float
-  one_minute: float
-  five_minute: float
-  fifteen_minute: float
+  logical_cores: int
+  current: float # 1 - idle
+  one_minute: float # cpu load average over 1 minute
+  five_minute: float # cpu load average over 5 minute
+  fifteen_minute: float # cpu laod average over 15 minute
+  # load average scales to the # of logical cores
 
 @dataclass
 class Memory:
-  memory_total: float
-  memory_used: float
-  memory_free: float
-  memory_swap_total: float
-  memory_swap_used: float
+  memory_total: int # in blocks of 1024 bytes
+  memory_used: int
+  memory_free: int
 
 class UnixSocketState(Enum):
   FREE = "FREE"

@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Local Diagnosis Report</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/output.css" />
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script defer src="/static/js/index.js"></script>
   </head>
   <body>
     {% macro mytable(header_names) %}
@@ -33,6 +35,10 @@
         <div id="cpu">
           <h3>CPU</h3>
           <div>
+            <div id="cpu_logical_cores">
+              <p>Logical Core Count</p>
+              <p>{{cpu.logical_cores}}</p>
+            </div>
             <div id="cpu_load">
               <p>CPU Load</p>
               <p>{{cpu.current}}%</p>
@@ -53,23 +59,13 @@
         </div>
         <div id="memory">
           <h3>Memory</h3>
-          <div>
-            <div id="memory_used_total">
-              <p>Memory</p>
-              <p>
-                <span>{{memory.memory_used}}GB</span>
-                <span>/</span>
-                <span>{{memory.memory_total}}GB</span>
-              </p>
-            </div>
-            <div id="memory_swap_used_total">
-              <p>Memory Swap</p>
-              <p>
-                <span>{{memory.memory_swap_used}}GB</span>
-                <span>/</span>
-                <span>{{memory.memory_swap_total}}GB</span>
-              </p>
-            </div>
+          <div id="memory_used_total">
+            <p>Memory</p>
+            <p>
+              <span>{{memory.memory_used}}GB</span>
+              <span>/</span>
+              <span>{{memory.memory_total}}GB</span>
+            </p>
           </div>
         </div>
         <div id="storage">
@@ -90,74 +86,112 @@
           {% endcall %}
         </div>
       </section>
-      <section id="network">
-        <h2>Network</h2>
-        <div id="local">
-          <h3>Local UNIX Network</h3>
-          <!-- prettier-ignore -->
-          {% call mytable(["Protocol", "State", "Type", "Path"]) %}
-          <!-- prettier-ignore -->
-          {% for network in network.local %}
-          <tr>
-            <td>{{network.proto}}</td>
-            <td>{{network.state}}</td>
-            <td>{{network.type}}</td>
-            <td>{{network.path}}</td>
-          </tr>
-          {% endfor %}
-          <!-- prettier-ignore -->
-          {% endcall %}
-        </div>
-        <div id="tcp">
-          <h3>TCP Network</h3>
-          <!-- prettier-ignore -->
-          {% call mytable(["Protocol", "State", "Local Address", "Foreign Address"]) %}
-          <!-- prettier-ignore -->
-          {% for network in network.tcp %}
-          <tr>
-            <td>{{network.proto}}</td>
-            <td>{{network.state}}</td>
-            <td>{{network.local_address}}</td>
-            <td>{{network.foreign_address}}</td>
-          </tr>
-          {% endfor %}
-          <!-- prettier-ignore -->
-          {% endcall %}
-        </div>
-      </section>
-      <section id="logs">
-        <h2>Logs</h2>
-        <div id="auth">
-          <h3>Authentication</h3>
-          <!-- prettier-ignore -->
-          {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
-          <!-- prettier-ignore -->
-          {% for log in auth_logs %}
-          <tr>
-            <td>{{log.timestamp}}</td>
-            <td>{{log.hostname}}</td>
-            <td>{{log.service}}</td>
-            <td>{{log.message}}</td>
-          </tr>
-          {% endfor %}
-          <!-- prettier-ignore -->
-          {% endcall %}
-        </div>
-        <div id="jctl">
-          <h3>JournalCtl</h3>
-          <!-- prettier-ignore -->
-          {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
-          <!-- prettier-ignore -->
-          {% for log in auth_logs %}
-          <tr>
-            <td>{{log.timestamp}}</td>
-            <td>{{log.hostname}}</td>
-            <td>{{log.service}}</td>
-            <td>{{log.message}}</td>
-          </tr>
-          {% endfor %}
-          <!-- prettier-ignore -->
-          {% endcall %}
+      <section id="tabs">
+        <nav>
+          <ol>
+            <li>
+              <button id="metrics_btn">Metrics</button>
+            </li>
+            <li>
+              <button id="network_btn">Network</button>
+            </li>
+            <li>
+              <button id="logs_btn">Logs</button>
+            </li>
+          </ol>
+        </nav>
+        <div>
+          <section id="metrics">
+            <h2>Metrics</h2>
+            <div id="metrics">
+              <h3>Tracked Metrics</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Created On", "Core Count (Logical)", "Average Load (%)", "Total Memory (GB)", "Memory Used (GB)"]) %}
+              <!-- prettier-ignore -->
+              {% for metric in metrics %}
+              <tr>
+                <td>{{metric.created_on.strftime('%-m/%-d/%Y, %-I:%M %p')}}</td>
+                <td>{{metric.cpu_logical_core_count}}</td>
+                <td>{{metric.cpu_average}}</td>
+                <td>{{metric.memory_total}}</td>
+                <td>{{metric.memory_used}}</td>
+              </tr>
+              <!-- prettier-ignore -->
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+          </section>
+          <section id="network" hidden>
+            <h2>Network</h2>
+            <div id="local">
+              <h3>Local UNIX Network</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Protocol", "State", "Type", "Path"]) %}
+              <!-- prettier-ignore -->
+              {% for network in network.local %}
+              <tr>
+                <td>{{network.proto}}</td>
+                <td>{{network.state}}</td>
+                <td>{{network.type}}</td>
+                <td>{{network.path}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="tcp">
+              <h3>TCP Network</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Protocol", "State", "Local Address", "Foreign Address"]) %}
+              <!-- prettier-ignore -->
+              {% for network in network.tcp %}
+              <tr>
+                <td>{{network.proto}}</td>
+                <td>{{network.state}}</td>
+                <td>{{network.local_address}}</td>
+                <td>{{network.foreign_address}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+          </section>
+          <section id="logs" hidden>
+            <h2>Logs</h2>
+            <div id="auth">
+              <h3>Authentication</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+              <!-- prettier-ignore -->
+              {% for log in auth_logs %}
+              <tr>
+                <td>{{log.timestamp}}</td>
+                <td>{{log.hostname}}</td>
+                <td>{{log.service}}</td>
+                <td>{{log.message}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="jctl">
+              <h3>JournalCtl</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+              <!-- prettier-ignore -->
+              {% for log in auth_logs %}
+              <tr>
+                <td>{{log.timestamp}}</td>
+                <td>{{log.hostname}}</td>
+                <td>{{log.service}}</td>
+                <td>{{log.message}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+          </section>
         </div>
       </section>
     </main>
