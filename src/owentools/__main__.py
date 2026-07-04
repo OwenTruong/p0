@@ -1,4 +1,4 @@
-from diag.diagnose import main
+from owentools.index import main
 
 if __name__ == "__main__":
   main()

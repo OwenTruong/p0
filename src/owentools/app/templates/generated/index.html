@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local Diagnosis Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/output.css" />
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script defer src="/static/js/index.js"></script>
+  </head>
+  <body
+    class="bg-[#F1F3F7] text-[#14171F] antialiased [font-family:'Inter',sans-serif]"
+  >
+    {% macro mytable(header_names) %}
+    <div
+      class="relative max-h-[500px] overflow-y-auto rounded-xl border border-[#E4E7EC]"
+    >
+      <table class="w-full border-collapse text-left">
+        <thead class="sticky top-0 z-10 bg-[#F7F8FA]">
+          <tr>
+            {% for h in header_names %}
+            <th
+              class="whitespace-nowrap border-b border-[#E4E7EC] px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-[#8B93A7]"
+            >
+              {{h}}
+            </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[#EEF0F3]">
+          {{ caller() }}
+        </tbody>
+      </table>
+    </div>
+    {% endmacro %}
+
+    <header class="bg-[#14171F] text-white">
+      <div
+        class="mx-auto flex max-w-6xl flex-col items-start gap-3 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-0 md:px-8"
+      >
+        <h1
+          class="[font-family:'Space_Grotesk',sans-serif] text-2xl font-semibold tracking-tight md:text-3xl"
+        >
+          Local Diagnosis Report
+        </h1>
+        <div
+          class="flex items-center gap-2 text-xs uppercase tracking-wider text-white/60 [font-family:'JetBrains_Mono',monospace]"
+        >
+          <span class="relative flex h-2 w-2">
+            <span
+              class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22C55E] opacity-75"
+            ></span>
+            <span
+              class="relative inline-flex h-2 w-2 rounded-full bg-[#22C55E]"
+            ></span>
+          </span>
+          Monitoring Active
+        </div>
+      </div>
+    </header>
+    <main class="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 md:px-8">
+      <section
+        id="hardware"
+        class="rounded-2xl border border-[#E4E7EC] bg-white p-6"
+      >
+        <h2
+          class="mb-4 [font-family:'Space_Grotesk',sans-serif] text-lg font-semibold"
+          hidden
+        >
+          Hardware
+        </h2>
+        <div class="flex flex-col gap-4">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div
+              id="cpu"
+              class="flex items-center justify-between rounded-xl border border-[#E4E7EC] bg-[#F7F8FA] p-5"
+            >
+              <div class="flex flex-col gap-1">
+                <div class="flex items-baseline gap-2">
+                  <h3
+                    class="text-sm font-semibold uppercase tracking-wide text-[#4B5265]"
+                  >
+                    CPU
+                  </h3>
+                  <div
+                    id="cpu_logical_cores"
+                    class="flex items-center text-xs text-[#8B93A7]"
+                  >
+                    <span>{{cpu.logical_cores}} Cores</span>
+                  </div>
+                </div>
+                <div id="cpu_load">
+                  <span
+                    class="[font-family:'JetBrains_Mono',monospace] text-4xl font-semibold text-[#3454D1]"
+                    >{{cpu.current}}%</span
+                  >
+                </div>
+              </div>
+              <div class="flex items-center justify-around gap-4">
+                <div
+                  id="cpu_load_minute_avg"
+                  class="mx-1 flex flex-col items-center"
+                >
+                  <span
+                    class="text-[11px] uppercase tracking-wide text-[#8B93A7]"
+                    >60s Avg</span
+                  >
+                  <span
+                    class="[font-family:'JetBrains_Mono',monospace] text-base font-medium text-[#14171F]"
+                    >{{cpu.one_minute}}%</span
+                  >
+                </div>
+                <div
+                  id="cpu_load_five_minute_avg"
+                  class="mx-1 flex flex-col items-center"
+                >
+                  <span
+                    class="text-[11px] uppercase tracking-wide text-[#8B93A7]"
+                    >5m Avg</span
+                  >
+                  <span
+                    class="[font-family:'JetBrains_Mono',monospace] text-base font-medium text-[#14171F]"
+                    >{{cpu.five_minute}}%</span
+                  >
+                </div>
+                <div
+                  id="cpu_load_fifteen_minute_avg"
+                  class="mx-1 flex flex-col items-center"
+                >
+                  <span
+                    class="text-[11px] uppercase tracking-wide text-[#8B93A7]"
+                    >15m Avg</span
+                  >
+                  <span
+                    class="[font-family:'JetBrains_Mono',monospace] text-base font-medium text-[#14171F]"
+                    >{{cpu.fifteen_minute}}%</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              id="memory"
+              class="rounded-xl border border-[#E4E7EC] bg-[#F7F8FA] p-5"
+            >
+              <h3
+                class="mb-1 text-sm font-semibold uppercase tracking-wide text-[#4B5265]"
+              >
+                Memory
+              </h3>
+              <div id="memory_used_total">
+                <p
+                  class="[font-family:'JetBrains_Mono',monospace] text-3xl text-[#4B5265]"
+                >
+                  <span class="font-semibold text-[#3454D1]"
+                    >{{memory.memory_used}}</span
+                  >
+                  <span class="text-[#8B93A7]">/</span>
+                  <span>{{memory.memory_total}} GB</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div id="storage">
+            <h3
+              class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#4B5265]"
+            >
+              Storage
+            </h3>
+            <!-- prettier-ignore -->
+            {% call mytable(["Filesystem", "Total Capacity (MB)", "Used (MB)", "Mount Path"]) %}
+            <!-- prettier-ignore -->
+            {% for storage in storages %}
+            <tr class="transition-colors hover:bg-[#F7F8FA]">
+              <td class="px-4 py-2.5 text-sm text-[#14171F]">
+                {{storage.filesystem}}
+              </td>
+              <td
+                class="px-4 py-2.5 text-sm text-[#4B5265] [font-family:'JetBrains_Mono',monospace]"
+              >
+                {{storage.total_capacity}}
+              </td>
+              <td
+                class="px-4 py-2.5 text-sm text-[#4B5265] [font-family:'JetBrains_Mono',monospace]"
+              >
+                {{storage.used_capacity}}
+              </td>
+              <td class="px-4 py-2.5 text-sm text-[#4B5265]">
+                {{storage.mount_path}}
+              </td>
+            </tr>
+            <!-- prettier-ignore -->
+            {% endfor %}
+            <!-- prettier-ignore -->
+            {% endcall %}
+          </div>
+        </div>
+      </section>
+      <section id="tabs" class="rounded-2xl border border-[#E4E7EC] bg-white">
+        <nav class="border-b border-[#E4E7EC] px-2">
+          <ol class="m-0 flex list-none gap-1 p-0">
+            <li>
+              <button
+                id="metrics_btn"
+                class="border-b-2 border-transparent px-5 py-3.5 text-sm font-medium text-[#8B93A7] transition-colors hover:text-[#14171F] [body:has(#metrics:not([hidden]))_&]:border-[#3454D1] [body:has(#metrics:not([hidden]))_&]:text-[#3454D1]"
+              >
+                Metrics
+              </button>
+            </li>
+            <li>
+              <button
+                id="network_btn"
+                class="border-b-2 border-transparent px-5 py-3.5 text-sm font-medium text-[#8B93A7] transition-colors hover:text-[#14171F] [body:has(#network:not([hidden]))_&]:border-[#3454D1] [body:has(#network:not([hidden]))_&]:text-[#3454D1]"
+              >
+                Network
+              </button>
+            </li>
+            <li>
+              <button
+                id="logs_btn"
+                class="border-b-2 border-transparent px-5 py-3.5 text-sm font-medium text-[#8B93A7] transition-colors hover:text-[#14171F] [body:has(#logs:not([hidden]))_&]:border-[#3454D1] [body:has(#logs:not([hidden]))_&]:text-[#3454D1]"
+              >
+                Logs
+              </button>
+            </li>
+          </ol>
+        </nav>
+        <div class="p-6">
+          <section id="metrics" class="flex flex-col gap-6">
+            <h2
+              class="[font-family:'Space_Grotesk',sans-serif] text-lg font-semibold"
+            >
+              Metrics
+            </h2>
+            <div id="tracked_metrics">
+              <h3
+                class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#4B5265]"
+              >
+                Tracked Metrics
+              </h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Created On", "Core Count (Logical)", "Average Load (%)", "Total Memory (GB)", "Memory Used (GB)"]) %}
+              <!-- prettier-ignore -->
+              {% for metric in metrics %}
+              <tr class="transition-colors hover:bg-[#F7F8FA]">
+                <td
+                  class="whitespace-nowrap px-4 py-2.5 text-sm text-[#4B5265] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{metric.created_on.strftime('%-m/%-d/%Y, %-I:%M %p')}}
+                </td>
+                <td
+                  class="px-4 py-2.5 text-sm text-[#14171F] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{metric.cpu_logical_core_count}}
+                </td>
+                <td
+                  class="px-4 py-2.5 text-sm text-[#14171F] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{metric.cpu_average}}
+                </td>
+                <td
+                  class="px-4 py-2.5 text-sm text-[#14171F] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{metric.memory_total}}
+                </td>
+                <td
+                  class="px-4 py-2.5 text-sm text-[#14171F] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{metric.memory_used}}
+                </td>
+              </tr>
+              <!-- prettier-ignore -->
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="summarized_metrics">
+              <h3
+                class="mb-3 text-sm font-semibold uppercase tracking-wide text-[#4B5265]"
+                hidden
+              >
+                Summarized Metrics
+              </h3>
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div
+                  id="summarized_cpu_metrics"
+                  class="rounded-xl border border-[#E4E7EC] bg-[#F7F8FA] p-5"
+                >
+                  <h4 class="mb-4 text-sm font-semibold text-[#14171F]">
+                    CPU Five-Number Summary
+                  </h4>
+                  <div class="flex flex-col gap-4">
+                    <div
+                      class="grid grid-cols-3 gap-3 text-center sm:grid-cols-5"
+                    >
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Minimum</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#14171F]"
+                          >{{metrics_summary.cpu.min}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Q1</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#14171F]"
+                          >{{metrics_summary.cpu.q1}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Median</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#3454D1]"
+                          >{{metrics_summary.cpu.median}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Q3</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#14171F]"
+                          >{{metrics_summary.cpu.q3}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Maximum</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#14171F]"
+                          >{{metrics_summary.cpu.max}}%</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="grid grid-cols-2 gap-3 border-t border-[#E4E7EC] pt-4 text-center sm:grid-cols-4"
+                    >
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >85 Percentile</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-sm font-medium text-[#4B5265]"
+                          >{{metrics_summary.cpu.p85}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >90 Percentile</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-sm font-medium text-[#4B5265]"
+                          >{{metrics_summary.cpu.p90}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >95 Percentile</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-sm font-medium text-[#4B5265]"
+                          >{{metrics_summary.cpu.p95}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >99 Percentile</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-sm font-medium text-[#4B5265]"
+                          >{{metrics_summary.cpu.p99}}%</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  id="summarized_memory_used_metrics"
+                  class="rounded-xl border border-[#E4E7EC] bg-[#F7F8FA] p-5"
+                >
+                  <h4 class="mb-4 text-sm font-semibold text-[#14171F]">
+                    Memory Used Five-Number Summary
+                  </h4>
+                  <div class="flex flex-col gap-4">
+                    <div
+                      class="grid grid-cols-3 gap-3 text-center sm:grid-cols-5"
+                    >
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Minimum</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#14171F]"
+                          >{{metrics_summary.memory_used.min}}GB</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Q1</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#14171F]"
+                          >{{metrics_summary.memory_used.q1}}GB</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Median</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#3454D1]"
+                          >{{metrics_summary.memory_used.median}}GB</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Q3</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#14171F]"
+                          >{{metrics_summary.memory_used.q3}}GB</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >Maximum</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-base font-semibold text-[#14171F]"
+                          >{{metrics_summary.memory_used.max}}GB</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      class="grid grid-cols-2 gap-3 border-t border-[#E4E7EC] pt-4 text-center sm:grid-cols-4"
+                    >
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >85 Percentile</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-sm font-medium text-[#4B5265]"
+                          >{{metrics_summary.memory_used.p85}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >90 Percentile</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-sm font-medium text-[#4B5265]"
+                          >{{metrics_summary.memory_used.p90}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >95 Percentile</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-sm font-medium text-[#4B5265]"
+                          >{{metrics_summary.memory_used.p95}}%</span
+                        >
+                      </div>
+                      <div class="flex flex-col items-center gap-0.5">
+                        <span
+                          class="text-[10px] uppercase tracking-wide text-[#8B93A7]"
+                          >99 Percentile</span
+                        >
+                        <span
+                          class="[font-family:'JetBrains_Mono',monospace] text-sm font-medium text-[#4B5265]"
+                          >{{metrics_summary.memory_used.p99}}%</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="network" hidden class="flex flex-col gap-6">
+            <h2
+              class="[font-family:'Space_Grotesk',sans-serif] text-lg font-semibold"
+            >
+              Network
+            </h2>
+            <div id="local">
+              <h3
+                class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#4B5265]"
+              >
+                Local UNIX Network
+              </h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Protocol", "State", "Type", "Path"]) %}
+              <!-- prettier-ignore -->
+              {% for network in network.local %}
+              <tr class="transition-colors hover:bg-[#F7F8FA]">
+                <td
+                  class="px-4 py-2.5 text-sm text-[#14171F] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{network.proto}}
+                </td>
+                <td class="px-4 py-2.5 text-sm">
+                  <span
+                    class="inline-flex items-center rounded-full bg-[#EEF1FC] px-2 py-0.5 text-xs font-medium text-[#3454D1]"
+                    >{{network.state}}</span
+                  >
+                </td>
+                <td class="px-4 py-2.5 text-sm text-[#4B5265]">
+                  {{network.type}}
+                </td>
+                <td
+                  class="break-all px-4 py-2.5 text-sm text-[#4B5265] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{network.path}}
+                </td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="tcp">
+              <h3
+                class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#4B5265]"
+              >
+                TCP Network
+              </h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Protocol", "State", "Local Address", "Foreign Address"]) %}
+              <!-- prettier-ignore -->
+              {% for network in network.tcp %}
+              <tr class="transition-colors hover:bg-[#F7F8FA]">
+                <td
+                  class="px-4 py-2.5 text-sm text-[#14171F] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{network.proto}}
+                </td>
+                <td class="px-4 py-2.5 text-sm">
+                  <span
+                    class="inline-flex items-center rounded-full bg-[#EEF1FC] px-2 py-0.5 text-xs font-medium text-[#3454D1]"
+                    >{{network.state}}</span
+                  >
+                </td>
+                <td
+                  class="px-4 py-2.5 text-sm text-[#4B5265] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{network.local_address}}
+                </td>
+                <td
+                  class="px-4 py-2.5 text-sm text-[#4B5265] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{network.foreign_address}}
+                </td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+          </section>
+          <section id="logs" hidden class="flex flex-col gap-6">
+            <h2
+              class="[font-family:'Space_Grotesk',sans-serif] text-lg font-semibold"
+            >
+              Logs
+            </h2>
+            <div id="auth">
+              <h3
+                class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#4B5265]"
+              >
+                Authentication
+              </h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+              <!-- prettier-ignore -->
+              {% for log in auth_logs %}
+              <tr class="align-top transition-colors hover:bg-[#F7F8FA]">
+                <td
+                  class="whitespace-nowrap px-4 py-2.5 text-sm text-[#4B5265] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{log.timestamp}}
+                </td>
+                <td class="px-4 py-2.5 text-sm text-[#14171F]">
+                  {{log.hostname}}
+                </td>
+                <td class="px-4 py-2.5 text-sm">
+                  <span
+                    class="inline-flex items-center rounded-full bg-[#F1F3F7] px-2 py-0.5 text-xs font-medium text-[#4B5265]"
+                    >{{log.service}}</span
+                  >
+                </td>
+                <td class="max-w-md px-4 py-2.5 text-sm text-[#4B5265]">
+                  {{log.message}}
+                </td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="jctl">
+              <h3
+                class="mb-2 text-sm font-semibold uppercase tracking-wide text-[#4B5265]"
+              >
+                JournalCtl
+              </h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+              <!-- prettier-ignore -->
+              {% for log in jctl_logs %}
+              <tr class="align-top transition-colors hover:bg-[#F7F8FA]">
+                <td
+                  class="whitespace-nowrap px-4 py-2.5 text-sm text-[#4B5265] [font-family:'JetBrains_Mono',monospace]"
+                >
+                  {{log.timestamp}}
+                </td>
+                <td class="px-4 py-2.5 text-sm text-[#14171F]">
+                  {{log.hostname}}
+                </td>
+                <td class="px-4 py-2.5 text-sm">
+                  <span
+                    class="inline-flex items-center rounded-full bg-[#F1F3F7] px-2 py-0.5 text-xs font-medium text-[#4B5265]"
+                    >{{log.service}}</span
+                  >
+                </td>
+                <td class="max-w-md px-4 py-2.5 text-sm text-[#4B5265]">
+                  {{log.message}}
+                </td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <footer
+      class="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-xs text-[#8B93A7] md:px-8"
+    >
+      <p>By Owen Truong</p>
+      <p>MIT License</p>
+    </footer>
+  </body>
+</html>

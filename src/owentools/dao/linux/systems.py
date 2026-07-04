@@ -2,9 +2,9 @@
 
 from typing import List
 
-from diag.utils.exceptions import UnexpectedException
+from owentools.utils.exceptions import UnexpectedException
 
-from diag.data.systems import CPU, Memory, Storage, NetworkLocal, NetworkTCP, Systems, UnixSocketState
+from owentools.data.systems import CPU, Memory, Storage, NetworkLocal, NetworkTCP, Systems, UnixSocketState
 
 import subprocess
 import os

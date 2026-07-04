@@ -10,12 +10,12 @@ import time
 import logging
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
+import numpy as np
 
 # First Party
-from diag.dao.db.metrics import MetricsDAO
-from diag.dao.linux.logs import LogsDAO
-from diag.dao.linux.systems import SystemsDAO
-import diag.utils
+from owentools.dao.db.metrics import MetricsDAO
+from owentools.dao.linux.logs import LogsDAO
+from owentools.dao.linux.systems import SystemsDAO
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -68,8 +68,6 @@ async def serve(request: Request):
   network_locals_display = []
   metrics_display = []
 
-  # systems.network_local_li[0].state.value
-
   for storage in systems.storage_li:
     storages_display.append({
       "filesystem": storage.filesystem,
@@ -89,23 +87,51 @@ async def serve(request: Request):
   for metric in metrics:
     metrics_display.append({
       "cpu_logical_core_count": metric.cpu_logical_core_count,
-      "cpu_average": round(metric.cpu_average / metric.cpu_logical_core_count * CPU_FACTOR, 1),
+      "cpu_average": round((metric.cpu_average / metric.cpu_logical_core_count) * CPU_FACTOR, 1),
       "memory_total": round(metric.memory_total / MEMORY_FACTOR, 2),
       "memory_used": round(metric.memory_used / MEMORY_FACTOR, 2),
       "created_on": metric.created_on
     })
 
+  cpu_avg_li = [ metric["cpu_average"] for metric in metrics_display ]
+  memory_used_li = [ metric["memory_used" ] for metric in metrics_display ]
+
+
   return templates.TemplateResponse(
-    name="index.html",
+    name="generated/index.html",
     context={
       "request": request,
       "metrics": metrics_display,
+      "metrics_summary": {
+        "cpu": {
+          "min": np.min(cpu_avg_li),
+          "q1": np.percentile(cpu_avg_li, 25),
+          "median": np.median(cpu_avg_li),
+          "q3": np.percentile(cpu_avg_li, 75),
+          "max": np.max(cpu_avg_li),
+          "p85": np.percentile(cpu_avg_li, 85),
+          "p90": np.percentile(cpu_avg_li, 90),
+          "p95": np.percentile(cpu_avg_li, 95),
+          "p99": np.percentile(cpu_avg_li, 99),
+        },
+        "memory_used": {
+          "min": np.min(memory_used_li),
+          "q1": np.percentile(memory_used_li, 25),
+          "median": np.median(memory_used_li),
+          "q3": np.percentile(memory_used_li, 75),
+          "max": np.max(memory_used_li),
+          "p85": np.percentile(memory_used_li, 85),
+          "p90": np.percentile(memory_used_li, 90),
+          "p95": np.percentile(memory_used_li, 95),
+          "p99": np.percentile(memory_used_li, 99),
+        }
+      },
       "cpu": {
         "logical_cores": systems.cpu.logical_cores,
-        "current": round(systems.cpu.current * CPU_FACTOR, 1),
-        "one_minute": round(systems.cpu.one_minute * CPU_FACTOR, 1),
-        "five_minute": round(systems.cpu.five_minute * CPU_FACTOR, 1),
-        "fifteen_minute": round(systems.cpu.fifteen_minute * CPU_FACTOR, 1)
+        "current": round((systems.cpu.current / systems.cpu.logical_cores) * CPU_FACTOR, 1),
+        "one_minute": round((systems.cpu.one_minute / systems.cpu.logical_cores) * CPU_FACTOR, 1),
+        "five_minute": round((systems.cpu.five_minute / systems.cpu.logical_cores) * CPU_FACTOR, 1),
+        "fifteen_minute": round((systems.cpu.fifteen_minute / systems.cpu.logical_cores) * CPU_FACTOR, 1)
       },
       "memory": {
         "memory_total": round(systems.memory.memory_total / MEMORY_FACTOR, 2),

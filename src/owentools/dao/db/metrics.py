@@ -5,13 +5,13 @@ from datetime import datetime
 from typing import ClassVar, List
 
 
-from diag.utils.exceptions import DatabaseConnectionError, UnexpectedException
+from owentools.utils.exceptions import DatabaseConnectionError, UnexpectedException
 
-from diag.data.systems import CPU, Memory, Storage, Systems, UnixSocketState
-from diag.data.metrics import Metrics
-from diag.dao.linux.systems import SystemsDAO
+from owentools.data.systems import CPU, Memory, Storage, Systems, UnixSocketState
+from owentools.data.metrics import Metrics
+from owentools.dao.linux.systems import SystemsDAO
 
-from diag.dao.db.dbdao import DBDAO
+from owentools.dao.db.dbdao import DBDAO
 
 
 class MetricsDAO(DBDAO):

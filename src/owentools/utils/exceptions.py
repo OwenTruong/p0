@@ -12,3 +12,6 @@ class MetricCreationError(Exception):
 
 class SingletonNotInitializedError(Exception):
   """Raised when attempting to retrieve a singleton when it has not been initalized yet"""
+
+class UnexpectedInputException(Exception):
+  """Raised during validation when an unexpected input is provided."""

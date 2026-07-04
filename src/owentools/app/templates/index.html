@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local Diagnosis Report</title>
+    <link rel="stylesheet" href="/static/output.css" />
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script defer src="/static/js/index.js"></script>
+  </head>
+  <body class="bg-gray-100 text-gray-900">
+    {% macro mytable(header_names) %}
+    <div class="max-h-[500px] overflow-y-auto relative border rounded-4xl">
+      <table class="w-full">
+        <thead class="sticky top-0 z-10 bg-white">
+          <tr>
+            {% for h in header_names %}
+            <th>{{h}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {{ caller() }}
+        </tbody>
+      </table>
+    </div>
+    {% endmacro %}
+
+    <header class="bg-gray-600 text-white w-screen">
+      <h1 class="text-4xl text-left px-8 py-4">Local Diagnosis Report</h1>
+    </header>
+    <main class="w-screen">
+      <section
+        id="hardware"
+        class="bg-gray-300 text-black pt-4 rounded-2xl my-4"
+      >
+        <h2 class="text-2xl" hidden>Hardware</h2>
+        <div class="flex flex-col">
+          <div class="grid grid-cols-2 grid-rows-1">
+            <div id="cpu" class="m-4 flex justify-between">
+              <div class="flex flex-col">
+                <div class="flex">
+                  <h3 class="text-lg mr-4">CPU</h3>
+                  <div
+                    id="cpu_logical_cores"
+                    class="text-xs flex items-center text-gray-700"
+                  >
+                    <span>{{cpu.logical_cores}} Cores</span>
+                  </div>
+                </div>
+                <div id="cpu_load" class="">
+                  <span class="text-4xl text-blue-800">{{cpu.current}}%</span>
+                </div>
+              </div>
+              <div class="flex justify-around items-center">
+                <div id="cpu_load_minute_avg" class="flex flex-col mx-4">
+                  <span class="text-gray-700">60s Avg</span>
+                  <span class="text-lg">{{cpu.one_minute}}%</span>
+                </div>
+                <div id="cpu_load_five_minute_avg" class="flex flex-col mx-4">
+                  <span class="text-gray-700">5m Avg</span>
+                  <span class="text-lg">{{cpu.five_minute}}%</span>
+                </div>
+                <div
+                  id="cpu_load_fifteen_minute_avg"
+                  class="flex flex-col mx-4"
+                >
+                  <span class="text-gray-700">15m Avg</span>
+                  <span class="text-lg">{{cpu.fifteen_minute}}%</span>
+                </div>
+              </div>
+            </div>
+            <div id="memory" class="m-4">
+              <h3 class="text-lg mr-4">Memory</h3>
+              <div id="memory_used_total">
+                <p class="text-3xl text-gray-700">
+                  <span class="text-blue-800">{{memory.memory_used}}</span>
+                  <span>/</span>
+                  <span>{{memory.memory_total}} GB</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div id="storage">
+            <h3>Storage</h3>
+            <!-- prettier-ignore -->
+            {% call mytable(["Filesystem", "Total Capacity (MB)", "Used (MB)", "Mount Path"]) %}
+            <!-- prettier-ignore -->
+            {% for storage in storages %}
+            <tr>
+              <td>{{storage.filesystem}}</td>
+              <td>{{storage.total_capacity}}</td>
+              <td>{{storage.used_capacity}}</td>
+              <td>{{storage.mount_path}}</td>
+            </tr>
+            <!-- prettier-ignore -->
+            {% endfor %}
+            <!-- prettier-ignore -->
+            {% endcall %}
+          </div>
+        </div>
+      </section>
+      <section id="tabs" class="bg-gray-300 rounded-2xl my-4">
+        <nav>
+          <ol>
+            <li>
+              <button id="metrics_btn">Metrics</button>
+            </li>
+            <li>
+              <button id="network_btn">Network</button>
+            </li>
+            <li>
+              <button id="logs_btn">Logs</button>
+            </li>
+          </ol>
+        </nav>
+        <div>
+          <section id="metrics">
+            <h2>Metrics</h2>
+            <div id="tracked_metrics">
+              <h3>Tracked Metrics</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Created On", "Core Count (Logical)", "Average Load (%)", "Total Memory (GB)", "Memory Used (GB)"]) %}
+              <!-- prettier-ignore -->
+              {% for metric in metrics %}
+              <tr>
+                <td>{{metric.created_on.strftime('%-m/%-d/%Y, %-I:%M %p')}}</td>
+                <td>{{metric.cpu_logical_core_count}}</td>
+                <td>{{metric.cpu_average}}</td>
+                <td>{{metric.memory_total}}</td>
+                <td>{{metric.memory_used}}</td>
+              </tr>
+              <!-- prettier-ignore -->
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="summarized_metrics">
+              <h3 hidden>Summarized Metrics</h3>
+              <div id="summarized_cpu_metrics">
+                <h4>CPU Five-Number Summary</h4>
+                <div>
+                  <div>
+                    <div>
+                      <span>Minimum</span>
+                      <span>{{metrics_summary.cpu.min}}%</span>
+                    </div>
+                    <div>
+                      <span>Q1</span>
+                      <span>{{metrics_summary.cpu.q1}}%</span>
+                    </div>
+                    <div>
+                      <span>Median</span>
+                      <span>{{metrics_summary.cpu.median}}%</span>
+                    </div>
+                    <div>
+                      <span>Q3</span>
+                      <span>{{metrics_summary.cpu.q3}}%</span>
+                    </div>
+                    <div>
+                      <span>Maximum</span>
+                      <span>{{metrics_summary.cpu.max}}%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div>
+                      <span>85 Percentile</span>
+                      <span>{{metrics_summary.cpu.p85}}%</span>
+                    </div>
+                    <div>
+                      <span>90 Percentile</span>
+                      <span>{{metrics_summary.cpu.p90}}%</span>
+                    </div>
+                    <div>
+                      <span>95 Percentile</span>
+                      <span>{{metrics_summary.cpu.p95}}%</span>
+                    </div>
+                    <div>
+                      <span>99 Percentile</span>
+                      <span>{{metrics_summary.cpu.p99}}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="summarized_memory_used_metrics">
+                <h4>Memory Used Five-Number Summary</h4>
+                <div>
+                  <div>
+                    <div>
+                      <span>Minimum</span>
+                      <span>{{metrics_summary.memory_used.min}}GB</span>
+                    </div>
+                    <div>
+                      <span>Q1</span>
+                      <span>{{metrics_summary.memory_used.q1}}GB</span>
+                    </div>
+                    <div>
+                      <span>Median</span>
+                      <span>{{metrics_summary.memory_used.median}}GB</span>
+                    </div>
+                    <div>
+                      <span>Q3</span>
+                      <span>{{metrics_summary.memory_used.q3}}GB</span>
+                    </div>
+                    <div>
+                      <span>Maximum</span>
+                      <span>{{metrics_summary.memory_used.max}}GB</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div>
+                      <span>85 Percentile</span>
+                      <span>{{metrics_summary.memory_used.p85}} GB</span>
+                    </div>
+                    <div>
+                      <span>90 Percentile</span>
+                      <span>{{metrics_summary.memory_used.p90}} GB</span>
+                    </div>
+                    <div>
+                      <span>95 Percentile</span>
+                      <span>{{metrics_summary.memory_used.p95}} GB</span>
+                    </div>
+                    <div>
+                      <span>99 Percentile</span>
+                      <span>{{metrics_summary.memory_used.p99}} GB</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="network" hidden>
+            <h2>Network</h2>
+            <div id="local">
+              <h3>Local UNIX Network</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Protocol", "State", "Type", "Path"]) %}
+              <!-- prettier-ignore -->
+              {% for network in network.local %}
+              <tr>
+                <td>{{network.proto}}</td>
+                <td>{{network.state}}</td>
+                <td>{{network.type}}</td>
+                <td>{{network.path}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="tcp">
+              <h3>TCP Network</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Protocol", "State", "Local Address", "Foreign Address"]) %}
+              <!-- prettier-ignore -->
+              {% for network in network.tcp %}
+              <tr>
+                <td>{{network.proto}}</td>
+                <td>{{network.state}}</td>
+                <td>{{network.local_address}}</td>
+                <td>{{network.foreign_address}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+          </section>
+          <section id="logs" hidden>
+            <h2>Logs</h2>
+            <div id="auth">
+              <h3>Authentication</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+              <!-- prettier-ignore -->
+              {% for log in auth_logs %}
+              <tr>
+                <td>{{log.timestamp}}</td>
+                <td>{{log.hostname}}</td>
+                <td>{{log.service}}</td>
+                <td>{{log.message}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="jctl">
+              <h3>JournalCtl</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+              <!-- prettier-ignore -->
+              {% for log in jctl_logs %}
+              <tr>
+                <td>{{log.timestamp}}</td>
+                <td>{{log.hostname}}</td>
+                <td>{{log.service}}</td>
+                <td>{{log.message}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>By Owen Truong</p>
+      <p>MIT License</p>
+    </footer>
+  </body>
+</html>

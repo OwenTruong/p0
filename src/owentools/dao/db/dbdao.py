@@ -8,7 +8,7 @@ import logging
 
 
 
-from diag.utils.exceptions import UnexpectedException, DatabaseConnectionError
+from owentools.utils.exceptions import UnexpectedException, DatabaseConnectionError
       
 
 class DBDAO(ABC):

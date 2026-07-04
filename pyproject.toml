@@ -36,4 +36,4 @@ Repository = "https://github.com/OwenTruong/p0"
 "Bug Tracker" = "https://github.com/OwenTruong/p0/issues"
 
 [project.scripts]
-p0 = "diag.diagnose:main"
+p0 = "owentools.index:main"
