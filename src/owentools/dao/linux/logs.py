@@ -1,7 +1,7 @@
 
-from diag.utils.exceptions import UnexpectedException
+from owentools.utils.exceptions import UnexpectedException
 
-from diag.data.logs import Auth, JournalCtl, Logs
+from owentools.data.logs import Auth, JournalCtl, Logs
 
 from datetime import datetime
 from typing import List
