@@ -11,11 +11,14 @@ import logging
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
 import numpy as np
+from dotenv import load_dotenv
 
 # First Party
 from owentools.dao.db.metrics import MetricsDAO
 from owentools.dao.linux.logs import LogsDAO
 from owentools.dao.linux.systems import SystemsDAO
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -104,26 +107,26 @@ async def serve(request: Request):
       "metrics": metrics_display,
       "metrics_summary": {
         "cpu": {
-          "min": np.min(cpu_avg_li),
-          "q1": np.percentile(cpu_avg_li, 25),
-          "median": np.median(cpu_avg_li),
-          "q3": np.percentile(cpu_avg_li, 75),
-          "max": np.max(cpu_avg_li),
-          "p85": np.percentile(cpu_avg_li, 85),
-          "p90": np.percentile(cpu_avg_li, 90),
-          "p95": np.percentile(cpu_avg_li, 95),
-          "p99": np.percentile(cpu_avg_li, 99),
+          "min": round(np.min(cpu_avg_li), 2),
+          "q1": round(np.percentile(cpu_avg_li, 25), 2),
+          "median": round(np.median(cpu_avg_li), 2),
+          "q3": round(np.percentile(cpu_avg_li, 75), 2),
+          "max": round(np.max(cpu_avg_li), 2),
+          "p85": round(np.percentile(cpu_avg_li, 85), 2),
+          "p90": round(np.percentile(cpu_avg_li, 90), 2),
+          "p95": round(np.percentile(cpu_avg_li, 95), 2),
+          "p99": round(np.percentile(cpu_avg_li, 99), 2),
         },
         "memory_used": {
-          "min": np.min(memory_used_li),
-          "q1": np.percentile(memory_used_li, 25),
-          "median": np.median(memory_used_li),
-          "q3": np.percentile(memory_used_li, 75),
-          "max": np.max(memory_used_li),
-          "p85": np.percentile(memory_used_li, 85),
-          "p90": np.percentile(memory_used_li, 90),
-          "p95": np.percentile(memory_used_li, 95),
-          "p99": np.percentile(memory_used_li, 99),
+          "min": round(np.min(memory_used_li), 2),
+          "q1": round(np.percentile(memory_used_li, 5)),
+          "median": round(np.median(memory_used_li), 2),
+          "q3": round(np.percentile(memory_used_li, 75)),
+          "max": round(np.max(memory_used_li), 2),
+          "p85": round(np.percentile(memory_used_li, 85), 2),
+          "p90": round(np.percentile(memory_used_li, 90), 2),
+          "p95": round(np.percentile(memory_used_li, 95), 2),
+          "p99": round(np.percentile(memory_used_li, 99), 2),
         }
       },
       "cpu": {

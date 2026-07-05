@@ -1,4 +1,5 @@
 import sys
+import os
 import subprocess
 import logging
 from datetime import datetime, timedelta
@@ -11,9 +12,9 @@ from owentools.utils.simple import validate_port, validate_choice, repeat_input
 from owentools.utils.exceptions import UnexpectedInputException
 
 def start_web(port: int):
-  command = [sys.executable, "-m", "uvicorn", "diag.app.app:app", "--port", str(port), "--host", "0.0.0.0", "--app-dir", "src"] 
+  command = [sys.executable, "-m", "uvicorn", "owentools.app.app:app", "--port", str(port), "--host", "0.0.0.0", "--app-dir", "src"] 
 
-  return subprocess.Popen(command)
+  return subprocess.Popen(command, cwd=os.path.dirname(os.path.abspath(__file__)))
 
 def start_watch():
   while True:
@@ -60,9 +61,8 @@ def define_web(arg_web: bool | None, arg_port: int | None):
   if should_start_web and arg_port:
     web_port = arg_port
   elif should_start_web == True:
-    port = repeat_input("Specify the port for the web server. (8082): ", validate=validate_port, default="y")
+    port = repeat_input(f"Specify the port for the web server. ({web_port}): ", validate=validate_port, default=str(web_port))
     web_port = int(port)
-    port = input("Specify the port for the web server. (8082): ").strip() or "8082"
     
   return WebConfig(run=should_start_web, port=web_port)
 

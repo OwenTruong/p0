@@ -1,2 +1,2 @@
-recursive-include src/diag/app/templates *
-recursive-include src/diag/app/static *
+recursive-include src/owentools/app/templates *
+recursive-include src/owentools/app/static *

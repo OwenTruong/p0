@@ -1,12 +1,9 @@
 from __future__ import annotations
-
 from abc import ABC, abstractmethod
-
+import sys
 import os
 import psycopg2
 import logging
-
-
 
 from owentools.utils.exceptions import UnexpectedException, DatabaseConnectionError
       

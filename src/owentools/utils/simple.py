@@ -44,7 +44,8 @@ def run_az_command(command_list, capture_output=True):
   try:
     # run() executes the command and waits for it to complete
     result = subprocess.run(command_list, check=True, text=True, capture_output=capture_output)
-    print(result.stdout)
+    if capture_output:
+      print(result.stdout)
     return result.stdout
   except subprocess.CalledProcessError as exc:
     print(f"\n Error executing command!", file=sys.stderr)

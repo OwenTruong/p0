@@ -3,7 +3,7 @@ requires = [ "setuptools", "wheel", "build" ]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "p0"
+name = "owentools"
 version = "1.0.0"
 authors = [
   { name = "Owen Truong" }
@@ -36,4 +36,4 @@ Repository = "https://github.com/OwenTruong/p0"
 "Bug Tracker" = "https://github.com/OwenTruong/p0/issues"
 
 [project.scripts]
-p0 = "owentools.index:main"
+owentools = "owentools.index:main"
