@@ -40,7 +40,7 @@ def start_watch():
         systems.cpu.logical_cores,
         systems.cpu.fifteen_minute,
         systems.memory.memory_total,
-        systems.memory.memory_free
+        systems.memory.memory_used
       )
     except Exception as exc:
       logging.critical(f"Failed to log metrics: {exc}")

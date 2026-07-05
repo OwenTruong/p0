@@ -33,6 +33,8 @@ class MetricsDAO(DBDAO):
     connection = None
     try:
         connection = self._get_connection()
+        logging.debug(f"Metric entered: cpu_logical_core_count ({cpu_logical_core_count}), cpu_average ({cpu_average}), memory_total ({memory_total}), memory_used ({memory_used})")
+
         with connection.cursor() as cursor:
           query = "INSERT INTO metrics (cpu_logical_core_count, cpu_average, memory_total, memory_used) VALUES(%s, %s, %s, %s) RETURNING *;" 
           cursor.execute(query, (cpu_logical_core_count, cpu_average, memory_total, memory_used))
@@ -49,6 +51,7 @@ class MetricsDAO(DBDAO):
             memory_used=row[4],
             created_on=row[5]
           )
+          logging.debug(f"Metric fetched: {str(metrics)}")
           return metrics
     except DatabaseConnectionError:
       raise
