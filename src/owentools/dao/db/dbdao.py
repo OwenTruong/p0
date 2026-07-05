@@ -17,6 +17,7 @@ class DBDAO(ABC):
     self.database = os.getenv("DB_NAME", "postgres")
     self.user = os.getenv("DB_USER", "postgres")
     self.password = os.getenv("DB_PASSWORD", "secret")
+    self.port = os.getenv("DB_PORT", "5432")
     self.table_name = table_name
     self._ensure_table_exists(table_query)
 
@@ -31,6 +32,7 @@ class DBDAO(ABC):
         database=self.database,
         user=self.user,
         password=self.password,
+        port=self.port
       )
     except psycopg2.OperationalError as err:
       logging.error(f"Failed to establish live connection database: {err}")
