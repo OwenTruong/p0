@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local Diagnosis Report</title>
+    <link rel="stylesheet" href="/static/output.css" />
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <script defer src="/static/js/index.js"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-900 font-sans antialiased">
+    {% macro mytable(header_names) %}
+    <div class="relative max-h-[420px] overflow-y-auto rounded-xl border border-gray-200 bg-white">
+      <table class="w-full border-collapse">
+        <thead class="sticky top-0 z-10 border-b border-gray-200 bg-gray-50">
+          <tr>
+            {% for h in header_names %}
+            <th class="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">{{h}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {{ caller() }}
+        </tbody>
+      </table>
+    </div>
+    {% endmacro %}
+
+    <header class="w-full border-b-2 border-indigo-600 bg-gray-900 text-white">
+      <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-5 md:px-8">
+        <span class="h-2.5 w-2.5 rounded-full bg-indigo-500"></span>
+        <h1 class="text-2xl font-semibold tracking-tight md:text-3xl">Local Diagnosis Report</h1>
+      </div>
+    </header>
+    <main class="mx-auto w-full max-w-7xl px-4 py-6 md:px-8">
+      <section
+        id="hardware"
+        class="mb-6 rounded-2xl border border-gray-200 bg-white p-6"
+      >
+        <h2 class="text-2xl" hidden>Hardware</h2>
+        <div class="flex flex-col gap-6">
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:divide-x md:divide-gray-200">
+            <div id="cpu" class="flex justify-between gap-4">
+              <div class="flex flex-col justify-between">
+                <div class="flex items-center gap-3">
+                  <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500">CPU</h3>
+                  <div
+                    id="cpu_logical_cores"
+                    class="flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+                  >
+                    <span>{{cpu.logical_cores}} Cores</span>
+                  </div>
+                </div>
+                <div id="cpu_load" class="mt-2">
+                  <span class="font-mono text-5xl font-bold text-indigo-600">{{cpu.current}}%</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-around gap-2">
+                <div id="cpu_load_minute_avg" class="flex flex-col items-center gap-1 rounded-lg bg-gray-50 px-3 py-2">
+                  <span class="text-xs uppercase tracking-wide text-gray-500">60s Avg</span>
+                  <span class="font-mono text-lg font-semibold text-gray-900">{{cpu.one_minute}}%</span>
+                </div>
+                <div id="cpu_load_five_minute_avg" class="flex flex-col items-center gap-1 rounded-lg bg-gray-50 px-3 py-2">
+                  <span class="text-xs uppercase tracking-wide text-gray-500">5m Avg</span>
+                  <span class="font-mono text-lg font-semibold text-gray-900">{{cpu.five_minute}}%</span>
+                </div>
+                <div
+                  id="cpu_load_fifteen_minute_avg"
+                  class="flex flex-col items-center gap-1 rounded-lg bg-gray-50 px-3 py-2"
+                >
+                  <span class="text-xs uppercase tracking-wide text-gray-500">15m Avg</span>
+                  <span class="font-mono text-lg font-semibold text-gray-900">{{cpu.fifteen_minute}}%</span>
+                </div>
+              </div>
+            </div>
+            <div id="memory" class="md:pl-6">
+              <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Memory</h3>
+              <div id="memory_used_total" class="mt-2">
+                <p class="font-mono text-4xl font-bold text-gray-900">
+                  <span class="text-indigo-600">{{memory.memory_used}}</span>
+                  <span class="text-gray-300">/</span>
+                  <span class="text-gray-400">{{memory.memory_total}} GB</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div id="storage">
+            <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Storage</h3>
+            <!-- prettier-ignore -->
+            {% call mytable(["Filesystem", "Total Capacity (MB)", "Used (MB)", "Mount Path"]) %}
+            <!-- prettier-ignore -->
+            {% for storage in storages %}
+            <tr class="hover:bg-gray-50">
+              <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{storage.filesystem}}</td>
+              <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{storage.total_capacity}}</td>
+              <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm font-semibold text-indigo-600">{{storage.used_capacity}}</td>
+              <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{storage.mount_path}}</td>
+            </tr>
+            <!-- prettier-ignore -->
+            {% endfor %}
+            <!-- prettier-ignore -->
+            {% endcall %}
+          </div>
+        </div>
+      </section>
+      <section id="tabs" class="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+        <nav class="border-b border-gray-200 bg-gray-50">
+          <ol class="flex">
+            <li>
+              <button id="metrics_btn" class="-mb-px border-b-2 border-indigo-600 px-5 py-3 text-sm font-semibold text-indigo-600">Metrics</button>
+            </li>
+            <li>
+              <button id="network_btn" class="-mb-px border-b-2 border-transparent px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-700">Network</button>
+            </li>
+            <li>
+              <button id="logs_btn" class="-mb-px border-b-2 border-transparent px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-700">Logs</button>
+            </li>
+          </ol>
+        </nav>
+        <div>
+          <section id="metrics" class="p-6">
+            <h2 class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400">Metrics</h2>
+            <div id="tracked_metrics">
+              <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Tracked Metrics</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Created On", "Core Count (Logical)", "Average Load (%)", "Total Memory (GB)", "Memory Used (GB)"]) %}
+              <!-- prettier-ignore -->
+              {% for metric in metrics %}
+              <tr class="hover:bg-gray-50">
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{metric.created_on.strftime('%-m/%-d/%Y, %-I:%M %p')}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{metric.cpu_logical_core_count}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm font-semibold text-indigo-600">{{metric.cpu_average}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{metric.memory_total}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm font-semibold text-indigo-600">{{metric.memory_used}}</td>
+              </tr>
+              <!-- prettier-ignore -->
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="summarized_metrics" class="mt-8">
+              <h3 hidden>Summarized Metrics</h3>
+              <div id="summarized_cpu_metrics">
+                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">CPU Five-Number Summary</h4>
+                <div class="flex flex-col gap-3">
+                  <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Minimum</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.cpu.min}}%</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Q1</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.cpu.q1}}%</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Median</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.cpu.median}}%</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Q3</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.cpu.q3}}%</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Maximum</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.cpu.max}}%</span>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">85 Percentile</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.cpu.p85}}%</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">90 Percentile</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.cpu.p90}}%</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">95 Percentile</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.cpu.p95}}%</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">99 Percentile</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.cpu.p99}}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="summarized_memory_used_metrics" class="mt-6">
+                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Memory Used Five-Number Summary</h4>
+                <div class="flex flex-col gap-3">
+                  <div class="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Minimum</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.memory_used.min}}GB</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Q1</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.memory_used.q1}}GB</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Median</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.memory_used.median}}GB</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Q3</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.memory_used.q3}}GB</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">Maximum</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.memory_used.max}}GB</span>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">85 Percentile</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.memory_used.p85}} GB</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">90 Percentile</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.memory_used.p90}} GB</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">95 Percentile</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.memory_used.p95}} GB</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 py-3">
+                      <span class="text-xs uppercase tracking-wide text-gray-500">99 Percentile</span>
+                      <span class="font-mono text-lg font-semibold text-indigo-600">{{metrics_summary.memory_used.p99}} GB</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section id="network" class="p-6" hidden>
+            <h2 class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400">Network</h2>
+            <div id="local">
+              <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Local UNIX Network</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Protocol", "State", "Type", "Path"]) %}
+              <!-- prettier-ignore -->
+              {% for network in network.local %}
+              <tr class="hover:bg-gray-50">
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{network.proto}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{network.state}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{network.type}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{network.path}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="tcp" class="mt-6">
+              <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">TCP Network</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Protocol", "State", "Local Address", "Foreign Address"]) %}
+              <!-- prettier-ignore -->
+              {% for network in network.tcp %}
+              <tr class="hover:bg-gray-50">
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{network.proto}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{network.state}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{network.local_address}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{network.foreign_address}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+          </section>
+          <section id="logs" class="p-6" hidden>
+            <h2 class="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-400">Logs</h2>
+            <div id="auth">
+              <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Authentication</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+              <!-- prettier-ignore -->
+              {% for log in auth_logs %}
+              <tr class="hover:bg-gray-50">
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{log.timestamp}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{log.hostname}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{log.service}}</td>
+                <td class="max-w-md truncate px-4 py-2.5 font-mono text-sm text-gray-700">{{log.message}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+            <div id="jctl" class="mt-6">
+              <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">JournalCtl</h3>
+              <!-- prettier-ignore -->
+              {% call mytable(["Date", "Hostname", "Service", "Message"]) %}
+              <!-- prettier-ignore -->
+              {% for log in jctl_logs %}
+              <tr class="hover:bg-gray-50">
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{log.timestamp}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{log.hostname}}</td>
+                <td class="whitespace-nowrap px-4 py-2.5 font-mono text-sm text-gray-700">{{log.service}}</td>
+                <td class="max-w-md truncate px-4 py-2.5 font-mono text-sm text-gray-700">{{log.message}}</td>
+              </tr>
+              {% endfor %}
+              <!-- prettier-ignore -->
+              {% endcall %}
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <footer class="w-full border-t-2 border-indigo-600 bg-gray-900 text-gray-400">
+      <div class="mx-auto flex max-w-7xl flex-col items-center gap-0.5 px-4 py-4 text-xs md:px-8">
+        <p>By Owen Truong</p>
+        <p>MIT License</p>
+      </div>
+    </footer>
+  </body>
+</html>

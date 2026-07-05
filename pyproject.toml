@@ -1,0 +1,39 @@
+[build-system]
+requires = [ "setuptools", "wheel", "build" ]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "owentools"
+version = "1.0.0"
+authors = [
+  { name = "Owen Truong" }
+]
+description = "Project 0 for Revature Training"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {file = "License"}
+keywords = []
+classifiers = [
+   "Programming Language :: Python :: 3.12",
+   "License :: OSI Approved :: MIT License",
+   "Operating System :: POSIX :: Linux"
+]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
+exclude = ["tests*"]
+
+[project.urls]
+Repository = "https://github.com/OwenTruong/p0"
+"Bug Tracker" = "https://github.com/OwenTruong/p0/issues"
+
+[project.scripts]
+owentools = "owentools.index:main"

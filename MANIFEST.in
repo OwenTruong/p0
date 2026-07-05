@@ -1,0 +1,2 @@
+recursive-include src/owentools/app/templates *
+recursive-include src/owentools/app/static *
