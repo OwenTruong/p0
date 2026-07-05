@@ -99,6 +99,13 @@ async def serve(request: Request):
   cpu_avg_li = [ metric["cpu_average"] for metric in metrics_display ]
   memory_used_li = [ metric["memory_used" ] for metric in metrics_display ]
 
+  # Case for when no metric have been observed yet
+  if len(cpu_avg_li) == 0:
+    cpu_avg_li = [0]
+
+  if len(memory_used_li) == 0:
+    memory_used_li = [0] 
+
 
   return templates.TemplateResponse(
     name="generated/index.html",
